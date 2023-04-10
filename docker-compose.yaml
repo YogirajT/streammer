@@ -1,0 +1,73 @@
+services:
+
+  mongodb:
+    hostname: ${DOCKER_MONGO_HOSTNAME}
+    image: mongo:4.2.23-bionic
+    expose:
+      - ${DOCKER_MONGO_PORT}
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo ${DOCKER_MONGO_HOSTNAME}:${DOCKER_MONGO_PORT}/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  backend-dev:
+    container_name: streammer-backend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+      args:
+        - BUILD_CONTEXT=backend
+        - DOCKER_BACKEND_APP_PORT=${DOCKER_CONTAINER_PORT}
+        - DOCKER_MONGO_PORT=${DOCKER_MONGO_PORT}
+        - DOCKER_MONGO_URL=mongodb://${DOCKER_MONGO_HOSTNAME}:${DOCKER_MONGO_PORT}?directConnection=true
+    volumes:
+      - .:/usr/src/app
+    environment:
+      NODE_ENV: production
+      PORT: ${DOCKER_BACKEND_APP_PORT}
+    ports:
+      - '${DOCKER_HOST_PORT}:${DOCKER_CONTAINER_PORT}'
+    links:
+      - ${DOCKER_MONGO_HOSTNAME}
+    command: npm run start:dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${DOCKER_BACKEND_HOST}:${DOCKER_HOST_PORT}/health"]
+      interval: 20s
+      timeout: 15s
+      retries: 5
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  backend-prod:
+    container_name: streammer-backend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: production
+      args:
+        - BUILD_CONTEXT=backend
+        - DOCKER_BACKEND_APP_PORT=${DOCKER_CONTAINER_PORT}
+        - DOCKER_MONGO_PORT=${DOCKER_MONGO_PORT}
+        - DOCKER_MONGO_URL=mongodb://${DOCKER_MONGO_HOSTNAME}:${DOCKER_MONGO_PORT}?directConnection=true
+    volumes:
+      - .:/usr/src/app
+    environment:
+      NODE_ENV: production
+      PORT: ${DOCKER_BACKEND_APP_PORT}
+    ports:
+      - '${DOCKER_HOST_PORT}:${DOCKER_CONTAINER_PORT}'
+    links:
+      - ${DOCKER_MONGO_HOSTNAME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${DOCKER_BACKEND_HOST}:${DOCKER_HOST_PORT}/health"]
+      interval: 20s
+      timeout: 15s
+      retries: 5
+    depends_on:
+      mongodb:
+        condition: service_healthy
