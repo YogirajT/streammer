@@ -22,6 +22,8 @@ COPY --chown=node:node . .
 # Use the node user from the image (instead of the root user)
 USER node
 
+EXPOSE 3001
+
 ###################
 # BUILD FOR PRODUCTION
 ###################
@@ -41,10 +43,10 @@ COPY --chown=node:node . .
 RUN npm run build
 
 # Set NODE_ENV environment variable
-ENV NODE_ENV production
+ENV NODE_ENV development
 
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
-RUN npm i --only=production && npm cache clean --force
+RUN npm i && npm cache clean --force
 
 USER node
 

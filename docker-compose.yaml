@@ -33,7 +33,7 @@ services:
       - '${DOCKER_HOST_PORT}:${DOCKER_CONTAINER_PORT}'
     links:
       - ${DOCKER_MONGO_HOSTNAME}
-    command: npm run start:dev
+    command: npm run start:debug
     healthcheck:
       test: ["CMD", "curl", "-f", "http://${DOCKER_BACKEND_HOST}:${DOCKER_HOST_PORT}/health"]
       interval: 20s
