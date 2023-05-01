@@ -5,7 +5,7 @@ import * as io from 'socket.io';
 import * as NodeTurn from 'node-turn';
 
 @WebSocketGateway()
-export class TurnServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class TurnServerGatewayController implements OnGatewayConnection, OnGatewayDisconnect {
 
     @WebSocketServer() server: Server;
     private turnServer: any;
