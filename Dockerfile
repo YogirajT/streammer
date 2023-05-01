@@ -25,7 +25,7 @@ USER node
 EXPOSE 3001
 
 ###################
-# BUILD FOR PRODUCTION
+# BUILD FOR DEVELOPMENT
 ###################
 
 FROM node:18-alpine As build
