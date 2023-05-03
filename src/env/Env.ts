@@ -1,1 +1,0 @@
-export const DEFAULT_CHUNK_SIZE = 261120; // 255 KB
